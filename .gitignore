@@ -1,0 +1,22 @@
+# dependencies & build output
+node_modules/
+dist/
+
+# intermediate data (regenerate with `npm run data`); the assembled data/ is committed
+scripts/raw/
+
+# logs
+*.log
+npm-debug.log*
+
+# Playwright / scratch screenshots dropped at the project root (reference/ assets are kept)
+.playwright-mcp/
+/*.png
+/*.jpg
+/*.jpeg
+
+# OS
+.DS_Store
+
+# editor / harness internal state
+.claude/
