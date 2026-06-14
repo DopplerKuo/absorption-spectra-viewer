@@ -1184,4 +1184,266 @@ collagen/protein 估計線正確顯示:綠色虛線+圓點——UV 強峰(193nm 
 
 重生預設預覽圖(估計線預設關)、回歸、commit、部署:
 
-<sub>🛠 Bash×12, Write×2, Edit×10, Read×4, mcp__playwright__browser_navigate×2, mcp__playwright__browser_evaluate, mcp__playwright__browser_take_screenshot×2</sub>
+重生 CONVERSATION.md(補進近期對話)+ 最終回歸 + build:
+
+全綠。commit + push + 重新部署:
+
+全部完成並上線。**#4/#5 收尾:**
+
+**#4 collagen/protein**(回答「是不是同一條線」+「找數據源」):
+- **是同一條** → 合併成一條 **「Collagen / protein (est.)」**。
+- 找不到開放的絕對 μa(λ) 資料集,所以做成**多源三角定位的重建估計**:6 個經對抗式驗證、可溯源的絕對 μa 錨點(193/220/280/700/910/6060nm),每個都是「真實來源值 × 明確組織濃度假設」,**~×3 不確定**。
+- 呈現:**虛線+圓點、標「(est.)」、預設關閉**;950–6000nm 留缺口(SWIR 峰只有 normalized 圖無法定絕對值)。每點的推導/不確定/出處全寫進 `data/SOURCES.md`。
+- 線上可勾選打開,形狀正確(UV 強峰→可見近紅外透明窗→中紅外 amide)。
+
+**#5 自行加入 Curve UI**:我「找到的」是重建估計(非乾淨量測資料),且那個 UI 也是你先前要的「終端使用者自行匯入資料」功能(兩者都要),所以**先保留**。缺口填補的理由已滿足,匯入功能本身還在。
+
+驗證:65 tests、tsc、build 全綠;已 push(`c6b1357`)+ 重新部署 → **https://absorption-spectra-viewer.vercel.app**
+
+兩個小決定留給你:
+1. collagen/protein 估計線要不要**預設打開**?(目前預設關,因 ×3 不確定;你要顯眼可改成預設開)
+2. 既然 #4 是估計而非乾淨資料,「Add a curve」UI 你還是想**保留(當終端匯入功能)還是移除**？
+
+<sub>🛠 Bash×14, Write×2, Edit×10, Read×4, mcp__playwright__browser_navigate×2, mcp__playwright__browser_evaluate, mcp__playwright__browser_take_screenshot×2</sub>
+
+---
+
+### 🧑 User
+
+所以剛剛做到哪
+
+### 🤖 Assistant
+
+目前進度——你列的六點全部做完、已上線。
+
+**最新狀態**
+- GitHub `main` 最新 commit `c6b1357`,已推送。
+- 線上:**https://absorption-spectra-viewer.vercel.app**(已重新部署為最新版)。
+- 驗證:65 tests、tsc、build 全綠。
+
+**六點完成情況**
+1. ✅ 手機版:單欄、圖優先、可橫滑、觸控可用(Pointer events)。
+2. ✅ X 軸:確認是 log;已說明 log 不加省略符號(線性軸才用)。
+3. ✅ Y 軸縮放 + 拖曳畫矩形(2D 框選);工具列加了 μa 範圍輸入。
+4. ✅ collagen=protein 合併成一條「Collagen / protein (est.)」;6 個多源驗證錨點的重建估計,虛線+點、預設關、出處在 SOURCES.md。
+5. ✅ Lasers 多選(同時紅色高亮、readout 逐支列 μa)。
+6. (#5 衍生)「Add a curve」UI:先保留(兼作終端匯入)。
+
+**等你決定的兩個小項**(還沒動,等你回覆)
+1. collagen/protein 估計線要不要**預設打開**?(目前預設關)
+2. 「Add a curve」UI **保留還是移除**?
+
+要我把這兩項照預設處理(維持現狀:估計線關、UI 保留)就好,還是你要改哪一個？
+
+---
+
+### 🧑 User
+
+2. 你在做什麼啊？我看不是很懂，你理解對嗎？
+4. 為什麼你用虛線？然後為什麼他節點這麼少？我不太懂
+
+### 🤖 Assistant
+
+兩點都是我沒解釋清楚,我說白話:
+
+## 2.「Add a curve」UI 是什麼
+
+它是 CURVES 區裡那個「**+ Add a curve**」按鈕展開的小表單:**讓使用者把自己的資料貼上/上傳**(貼 `[波長, μa]` 數列 + 名稱 + 來源)→ 圖上就多一條曲線。
+
+為什麼有它:你之前說產品「兩者都要」——既給工程師用程式餵資料,也要**終端使用者能在網頁自己匯入資料**。這個按鈕就是後者。
+
+我剛剛問的是:現在 collagen/protein 已經畫上去了,這個「自己匯入」功能你**還要不要**。如果你根本不需要讓別人匯入自己的資料,我就移除它,UI 更乾淨。
+
+→ 你要讓使用者能自己匯入資料嗎?
+
+## 4. 為什麼虛線、為什麼點這麼少
+
+**虛線**:我用線型區分資料可信度——
+- **實線** = 真實量測資料(水、血紅素、HA)。
+- **虛線** = 估計/模型(melanin 也是虛線,因為它是公式;collagen/protein 是重建估計)。
+虛線是在說「這條不是直接量到的,是推估的,別當精確值」。
+
+**點這麼少(只有 6 點)**:因為 collagen/protein **真的就只有這麼多可信的絕對數值**。對比:水 557 點、血紅素 376 點(有完整資料集);collagen/protein **沒有任何公開資料集**,我只能從散落的不同論文各湊出一個值(193nm 一篇、6060nm 一篇…),全部加起來就 6 個。中間 950–6000nm 完全沒有可信絕對值,所以斷開留缺口。
+
+換句話說:**虛線+稀疏點 = 老實呈現「這東西幾乎沒有資料,以下是僅有的幾個推估值」**。
+
+如果你覺得這樣看起來像「壞掉/不完整」而不是「估計」,我可以改成更清楚的呈現,三選一:
+
+先澄清——**不是「什麼都沒有」**:
+
+- 有真實量測的 collagen 吸收光譜(Taroni 2007、Sekar 2017,500–1700nm;Davydov 2025 開放取用),但它們**只存在論文的「圖」裡**,沒有公開的數值表/CSV(且部分在 paywall)。
+- 我只湊到 6 點,是因為**你最初交接文件的規則**:「不要從圖上描點(log 軸描點誤差可達數十%),一律回 tabulated 實驗數據」。我嚴格遵守 → 只剩「不靠描點也能算出」的 6 個絕對值。
+- 所以「圖形推估(描點)」**其實做得到**,只是被你自己定的那條規則擋住了。
+
+**關鍵決定在你**:要不要**針對 collagen 放寬那條「不描點」規則**?因為這東西真的沒有 tabulated 替代資料,放寬是合理的。放寬後我可以從已發表的圖**數位化出一條密集、形狀真實的 collagen 曲線**(標明「digitized from 某圖,±誤差」、絕對尺度錨定到 Taroni 的真實值)。
+
+代價:描 log 軸圖的誤差可能數十%(這正是你當初想避免的)。但換來的是真實形狀的連續曲線,而非 6 個稀疏點。
+
+<sub>🛠 AskUserQuestion×2</sub>
+
+---
+
+### 🧑 User
+
+[Request interrupted by user]
+
+然後可以不用這麼嚴格
+
+### 🤖 Assistant
+
+了解——**放寬嚴格度、兩者都要**:保留高信心絕對錨點(實心點)+ **從圖數位化出密集形狀**(虛線),多源交叉。最直接的「圖」就是**你自己給的參考圖**(`Absorption-spectral_collagen.png` 有 Protein+Collagen;`ref2.png` 有 Collagen 到中紅外)——那正是你想重現的圖。
+
+先把這兩張圖看清楚,逐點描出 collagen/protein 形狀,再用真實錨點校正絕對尺度。
+
+先確認:這張 `Absorption-spectral_collagen.png` 的 Y 軸其實標的是「Absorption Coefficient (1/cm)」對數刻度——所以描它能得到**近似絕對 μa**,正合用。圖太小看不清,我放大裁切再描。先確認影像工具:
+
+收到——**多方查、找最可能、最細緻**。這正是徹底的多源研究+數位化+三角定位任務。既然你已放寬「不描點」,我啟動一個全面 workflow:平行從**多個來源各自抽密集點**(你的參考圖、ref2、Sekar/Taroni/Davydov 真實量測圖、Boulnois/Niemz 經典圖、FTIR amide + UV 胺基酸),再**三角定位成一條最可能的密集曲線**(含不確定區間),最後對抗式 sanity 驗證。
+
+PIL 12 可用(供 agent 裁切放大描圖)。啟動研究 workflow(背景):
+
+多源密集曲線 workflow 已啟動(背景):6 個來源平行抽密集點(你的兩張參考圖 + Sekar/Taroni/Davydov 真實量測圖 + Boulnois/Niemz 經典圖 + UV/amide 換算)→ 三角定位成一條最可能的密集 μa(λ) 曲線(20–30 點、含不確定區間、絕對尺度由真實值校正、形狀由各圖佐證)→ 對抗式 sanity 驗證。
+
+回來後我會用這條密集曲線取代目前的 6 點版(高信心錨點仍保留標示),更新資料/SOURCES/測試,回歸後 commit + 重新部署。等它完成。
+
+<sub>🛠 Read, Bash, Workflow</sub>
+
+---
+
+### 🧑 User
+
+還有 Melanin 也更新
+
+### 🤖 Assistant
+
+好,melanin 也一起。目前 melanin 只用單一 Jacques 冪律公式(300–1100nm),可以用多源更細緻——OMLC 其實有 eumelanin/pheomelanin 的實測資料,還有冪律的多個變體與適用範圍。
+
+啟動 melanin 多源研究(背景,與 collagen/protein workflow 並行):
+
+兩個背景研究並行中:
+1. **collagen/protein** 多源密集曲線 workflow。
+2. **melanin** 多源研究 agent(OMLC eumelanin/pheomelanin 實測 + 冪律變體交叉比較,目標密集 μa 表)。
+
+兩者回來後我會一起整合:更新 collagen/protein(密集)與 melanin(多源細緻)兩條曲線,改 build_dataset/SOURCES/測試,回歸 → commit → 重新部署。等通知。
+
+Melanin 研究回來,結論很乾淨:
+- 兩個 OMLC/Jacques 冪律(`1.70e12·λ⁻³·⁴⁸` 與 `6.6e11·λ⁻³·³³`)彼此差 ~12%,**幾何平均 = 最可能值**。
+- 實測 Sarna eumelanin(OMLC)在 400–800nm 獨立吻合幾何平均 ~3–6%,**交叉驗證**。
+- 建議:單一 melanin 曲線 = 兩律幾何平均,250–1100nm(250–350 低信心,>1100 外推)。
+
+升級 melanin:單一公式 → 兩律幾何平均、延伸到 250nm、實測交叉驗證,範圍/信心標清楚。改寫 melanin.mjs:
+
+Melanin 升級完成:86 點、兩律幾何平均,探測值(400→1462、532→554、1064→52)全落在兩律之間、與實測一致。65 tests 綠。
+
+commit + push + 部署 melanin 更新(collagen/protein 密集版等其 workflow 回來再一起):
+
+Melanin 更新已 push(`384aaf8`)。collagen/protein 的多源密集曲線 workflow 仍在背景跑——回來後我會整合那條密集曲線,然後**一次重新部署**(含 melanin + collagen 兩項更新)到線上。等 workflow 通知。
+
+<sub>🛠 Agent, Write, Bash×2</sub>
+
+---
+
+### 🧑 User
+
+所以改好沒？
+
+### 🤖 Assistant
+
+誠實講:**melanin 改好了**(已 commit+push,`384aaf8`),但**還沒部署到線上**(我原本想等 collagen 一起部署)。**collagen/protein 的密集多源曲線還在跑**(workflow 背景中,還沒回來)。
+
+既然你要看,我現在就先把 melanin 部署上線:
+
+現況:
+
+- **Melanin** ✅ 改好**且已上線**(https://absorption-spectra-viewer.vercel.app)——現在是兩律幾何平均、實測交叉驗證、250–1100nm。
+- **Collagen/protein 密集多源曲線** ⏳ **還沒好**,多源研究 workflow 仍在背景跑(6 來源描圖+三角定位)。它一回來我就整合、再部署一次。
+
+所以:melanin 好了可以看;collagen/protein 還在做。等 workflow 完成我會主動回報。
+
+<sub>🛠 Bash</sub>
+
+---
+
+### 🧑 User
+
+Melanin 改了什麼啊？
+
+### 🤖 Assistant
+
+白話講,melanin 這次改的是**方法與嚴謹度**,數值其實只動了幾 %(因為多個來源本來就很接近)。
+
+**改之前**
+- 單一公式:`μa = 1.70e12 · λ⁻³·⁴⁸`(Jacques 一條冪律,沒驗證)。
+- 範圍 300–1100nm,81 點。
+
+**改之後**
+- 改用**兩條** Jacques 冪律的**幾何平均**(`1.70e12·λ⁻³·⁴⁸` 與 `6.6e11·λ⁻³·³³`)= 最可能值,兩條的差距當作不確定區間。
+- **用實測資料交叉驗證**:OMLC 的 Sarna eumelanin 實測光譜,在 400–800nm 與幾何平均吻合 ~3–6%(等於有了佐證,不再是孤證公式)。
+- **範圍延伸到 250–1100nm**(86 點);250–350nm 標為低信心、>1100nm 標為外推。
+
+**實際數值差多少**(幾乎一樣,因為來源一致):
+
+| λ | 舊(單律) | 新(幾何平均) |
+|---|---|---|
+| 400 | 1497 | 1462 |
+| 532 | 555 | 554 |
+| 1064 | 49.7 | 52.3 |
+
+所以線在圖上**看起來幾乎沒變**——這正是重點:多源彼此印證,代表原本的值就可信。升級的是「可信度與出處」(多源+實測驗證+範圍+不確定標註),不是把曲線畫成不同形狀。
+
+如果你期待的是「看得出差別」的改動,那 melanin 本來就沒有更好的不同資料可換;真正會明顯改變的是 collagen/protein(那條本來幾乎沒資料),它的密集多源版還在跑。
+
+---
+
+### 🧑 User
+
+所以他的線是一條直線？
+
+### 🤖 Assistant
+
+對,在這個 **log–log 圖上 melanin 基本上是一條(向下斜的)直線**——而且這是**物理上正確**的,不是偷懶。
+
+原因:melanin 的吸收是**冪律** `μa = A·λ⁻ᵏ`。取對數後 `log(μa) = log(A) − k·log(λ)`,在 log–log 軸上就是一條直線。幾何平均兩條冪律後**仍是冪律**(指數取平均),所以還是直線。
+
+**為什麼 melanin 是直線、別的不是:**
+- melanin 在 250–1100nm **沒有吸收峰**,就是平滑單調下降 → log-log 直線。這也是為什麼一條冪律就能描述它(且實測 Sarna 資料也吻合這條直線)。
+- 對比:水、血紅素、HA 有明顯吸收峰/谷 → 在 log-log 上是彎曲、有起伏的線。
+
+所以「melanin 是直線」是它的真實特性。這次升級沒有(也不該)把它變彎——改的是這條直線的**斜率/高度可信度**(兩律幾何平均+實測驗證+延伸到 250nm),線型本身(冪律=直線)維持正確。
+
+(注:>1100nm 我沒延伸,因為那是外推、且 melanin 在 IR 已可忽略;若硬延伸只會是同一條直線往右拉,沒有新資訊。)
+
+collagen/protein 密集 workflow 完成:**28 點、多源三角定位 + sanity 驗證**。亮點:抓到 **Sekar 2017(開放取用、從 Figure 2 數位化)** 的真實量測 SWIR 段(1180=0.33、1500=2.1、1725=2.3 cm⁻¹),加上 UV 分子換算、amide 帶,且與既有錨點(193/280/6060)交叉吻合。每點都有 basis + confidence。
+
+擷取完整 28 點:
+
+完整 28 點到手,來源 6 個(你的兩張參考圖 + Sekar 2017 GOLD + Davydov + skin-optics review + UV/amide 換算)。更新 build_dataset 用這 28 點。先讀目前 cp 區塊:
+
+移除了 gaps、`how`→`conf`,需同步修 SOURCES.md 產生段落:
+
+修 melanin SOURCES 文字範圍(300→250),重建 + 回歸:
+
+collagen-protein 現在 28 點。65 tests 綠。瀏覽器看密集曲線形狀:
+
+兩件事:
+
+**1. 預設全部打開** → collagen/protein 改成預設開(其他本來就開)。
+
+**虛線的意思**:**實線 = 直接量測的資料**(水、血紅素、HA);**虛線 = 非直接量測**——melanin 是公式模型、collagen/protein 是多源重建估計。我會在圖下加一行說明,讓任何看圖的人都懂。
+
+改 collagen 預設開:
+
+Now add the solid/dashed explanation to the chart foot:
+
+測試斷言 collagen 預設關,現已改預設開。更新測試:
+
+65 tests、build 綠。瀏覽器之前卡住,關掉重開來驗證(預設全開 + 虛線說明):
+
+瀏覽器 profile 被鎖住。嘗試清掉卡住的 chrome 程序再開:
+
+瀏覽器恢復。截圖確認預設全開(含密集 collagen/protein 虛線)+ 虛線說明:
+
+密集 collagen/protein(青綠虛線)預設顯示了:UV 強峰 → 可見近紅外透明窗 → SWIR 峰(1180/1500/1725)→ 中紅外 amide 帶,全程虛線=估計;底部已有「solid = measured, dashed = model/estimate」說明。
+
+更新 README 預覽、commit、部署:
+
+<sub>🛠 Bash×5, Read×4, Edit×6, mcp__playwright__browser_navigate×3, ToolSearch, mcp__playwright__browser_close, mcp__playwright__browser_take_screenshot×2</sub>

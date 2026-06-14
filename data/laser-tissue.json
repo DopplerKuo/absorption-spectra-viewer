@@ -8716,43 +8716,123 @@
       "color": "#0a8a5c",
       "points": [
         [
-          193,
+          190,
+          28000
+        ],
+        [
+          200,
           13000
         ],
         [
+          205,
+          11000
+        ],
+        [
+          210,
+          6800
+        ],
+        [
           220,
-          3100
+          3000
+        ],
+        [
+          230,
+          130
+        ],
+        [
+          240,
+          31
+        ],
+        [
+          260,
+          3
         ],
         [
           280,
-          15
+          12
+        ],
+        [
+          300,
+          1
+        ],
+        [
+          350,
+          0.45
+        ],
+        [
+          450,
+          0.13
+        ],
+        [
+          500,
+          0.12
+        ],
+        [
+          580,
+          0.14
         ],
         [
           700,
-          0.022
+          0.045
+        ],
+        [
+          840,
+          0.036
         ],
         [
           910,
-          0.022
+          0.05
+        ],
+        [
+          1000,
+          0.08
+        ],
+        [
+          1180,
+          0.33
+        ],
+        [
+          1300,
+          0.16
+        ],
+        [
+          1500,
+          2.1
+        ],
+        [
+          1725,
+          2.3
+        ],
+        [
+          2000,
+          4
+        ],
+        [
+          2350,
+          60
+        ],
+        [
+          3030,
+          820
         ],
         [
           6060,
           1600
+        ],
+        [
+          6450,
+          680
+        ],
+        [
+          8000,
+          270
         ]
       ],
-      "modelFormula": "Reconstructed multi-source estimate (~×3 uncertainty) — not a measured spectrum",
+      "modelFormula": "Dense reconstructed multi-source estimate — not a measured spectrum (confidence varies per point)",
       "source": {
-        "ref": "Multi-source triangulation: Fisher & Hahn, Appl. Opt. 43:5443 (2004); Taroni et al., J. Biomed. Opt. 12:014021 (2007); Davydov et al., Adv. Sci. PMC12591192 (2025); Barth, BBA 1767:1073 (2007); PhotochemCAD Trp/Tyr (OMLC). Collagen treated as the dominant structural protein.",
-        "note": "RECONSTRUCTED ESTIMATE, not a measured spectrum. Each anchor = real source value × explicit tissue concentration; ~×3 uncertainty (see anchor table below). Off by default."
-      },
-      "gaps": [
-        {
-          "fromNm": 950,
-          "toNm": 6000,
-          "reason": "No absolute μa anchor between the vis-NIR window and the mid-IR amide bands; SWIR peaks (1200/1500/1725 nm) are figure-only/normalized so absolute values could not be grounded."
-        }
-      ],
-      "enabledByDefault": false
+        "ref": "Multi-source triangulation (sanity-verified). SWIR 580–1700 nm: Sekar et al., J. Biomed. Opt. 22:015006 (2017), digitized open-access Fig. 2 (measured). UV/amide: peptide & Trp/Tyr ε (PhotochemCAD/OMLC; Anthis & Clore) and Barth, BBA 1767:1073 (2007) × tissue residue concentration. Cross-checked vs Fisher & Hahn (2004), Taroni (2007), Davydov (2025), and reference figures.",
+        "note": "DENSE RECONSTRUCTED ESTIMATE, not a single measured spectrum. SWIR core is real (Sekar, measured); UV peptide peak and mid-IR amide bands are ε×concentration estimates (~×2–3); collagen has ~0 tryptophan so the 280 nm band is small. Per-point confidence (0.35–0.85) and uncertainty range in this file."
+      }
     }
   ],
   "lasers": [

@@ -60,33 +60,53 @@ const lasers = [
   { id: 'co2_106', label: 'CO₂ 10.6µm', wavelengthNm: 10600 },
 ];
 
-// --- Collagen / protein: ONE merged curve. Collagen is the dominant structural protein and
-// laser-tissue charts treat them as one line. No open absolute μa(λ) dataset exists, so this is a
-// RECONSTRUCTED ESTIMATE: most-probable absolute μa anchors triangulated from multiple primary
-// sources, each derived from a real value × explicit tissue concentration and adversarially
-// verified. ~×3 uncertain → drawn dashed, labelled "(est.)", OFF by default. ----
+// --- Collagen / protein: ONE merged curve (collagen is the dominant structural protein; laser-tissue
+// charts draw them as one line). No open absolute μa(λ) dataset exists, so this is a DENSE
+// RECONSTRUCTED ESTIMATE: 28 most-probable absolute μa points triangulated from 6 sources and
+// sanity-verified — the measured Sekar 2017 collagen spectrum (digitized, open access) anchors the
+// 580–1700 nm SWIR; molecular ε×concentration gives the UV peptide/aromatic and mid-IR amide bands;
+// the two reference figures + a skin-optics review supply shape. Confidence varies per point
+// (0.35–0.85). Drawn dashed, labelled "(est.)". See the table in data/SOURCES.md. ----
 const cpAnchors = [
-  { nm: 193, mua: 13000, low: 6200, high: 19500, how: 'Fisher & Hahn 2004 peptide-bond σ=1.14e-17 cm² (96% of collagen 193 nm absorption) × dermal residue density (ρ≈0.11–0.30 g/cm³, M≈110 g/mol); cross-checked vs corneal μa 16000–39900 cm⁻¹.' },
-  { nm: 220, mua: 3100, low: 1700, high: 5100, how: 'Peptide-bond shoulder ε≈100–300 M⁻¹cm⁻¹ × residue molarity 2.4–3.9 M. Steep band edge → low confidence.' },
-  { nm: 280, mua: 15, low: 8, high: 35, how: 'Aromatic band. Collagen has ZERO tryptophan; only tyrosine (~2–3 per 1000 residues), εTyr≈1209–1490 M⁻¹cm⁻¹. Far below generic (Trp-bearing) protein.' },
-  { nm: 700, mua: 0.022, low: 0.01, high: 0.04, how: 'Taroni 2007 collagen powder floor (μa>0.026 cm⁻¹ at ρ=0.196 g/cm³) scaled to tissue collagen density. Optical window — weak absorber.' },
-  { nm: 910, mua: 0.022, low: 0.012, high: 0.05, how: 'Davydov 2025 (open access) collagen extinction shape on the Taroni absolute scale; C–H overtone region.' },
-  { nm: 6060, mua: 1600, low: 700, high: 2500, how: 'Amide I (C=O stretch, 1650 cm⁻¹) molar absorption 300–400 M⁻¹cm⁻¹ (Barth 2007) × residue molarity. Overlaps strong water IR absorption.' },
+  { nm: 190, mua: 28000, low: 13000, high: 50000, conf: 0.45 },
+  { nm: 200, mua: 13000, low: 5000, high: 29000, conf: 0.5 },
+  { nm: 205, mua: 11000, low: 4400, high: 23000, conf: 0.55 },
+  { nm: 210, mua: 6800, low: 2600, high: 15000, conf: 0.55 },
+  { nm: 220, mua: 3000, low: 1500, high: 5100, conf: 0.45 },
+  { nm: 230, mua: 130, low: 40, high: 380, conf: 0.4 },
+  { nm: 240, mua: 31, low: 10, high: 91, conf: 0.4 },
+  { nm: 260, mua: 3, low: 1, high: 12, conf: 0.4 },
+  { nm: 280, mua: 12, low: 5, high: 30, conf: 0.45 },
+  { nm: 300, mua: 1, low: 0.3, high: 3, conf: 0.5 },
+  { nm: 350, mua: 0.45, low: 0.2, high: 1, conf: 0.55 },
+  { nm: 450, mua: 0.13, low: 0.06, high: 0.3, conf: 0.55 },
+  { nm: 500, mua: 0.12, low: 0.05, high: 0.35, conf: 0.45 },
+  { nm: 580, mua: 0.14, low: 0.09, high: 0.22, conf: 0.75 },
+  { nm: 700, mua: 0.045, low: 0.022, high: 0.07, conf: 0.7 },
+  { nm: 840, mua: 0.036, low: 0.026, high: 0.05, conf: 0.85 },
+  { nm: 910, mua: 0.05, low: 0.022, high: 0.08, conf: 0.7 },
+  { nm: 1000, mua: 0.08, low: 0.04, high: 0.12, conf: 0.75 },
+  { nm: 1180, mua: 0.33, low: 0.18, high: 0.5, conf: 0.75 },
+  { nm: 1300, mua: 0.16, low: 0.1, high: 0.25, conf: 0.75 },
+  { nm: 1500, mua: 2.1, low: 1.3, high: 3, conf: 0.75 },
+  { nm: 1725, mua: 2.3, low: 1.2, high: 3.5, conf: 0.55 },
+  { nm: 2000, mua: 4, low: 0.5, high: 20, conf: 0.35 },
+  { nm: 2350, mua: 60, low: 13, high: 110, conf: 0.4 },
+  { nm: 3030, mua: 820, low: 200, high: 2300, conf: 0.4 },
+  { nm: 6060, mua: 1600, low: 700, high: 2500, conf: 0.45 },
+  { nm: 6450, mua: 680, low: 200, high: 1700, conf: 0.45 },
+  { nm: 8000, mua: 270, low: 60, high: 760, conf: 0.4 },
 ];
 const collagenProtein = {
   id: 'collagen-protein',
   label: 'Collagen / protein (est.)',
   color: '#0a8a5c',
   points: cpAnchors.map((a) => [a.nm, a.mua]),
-  modelFormula: 'Reconstructed multi-source estimate (~×3 uncertainty) — not a measured spectrum',
+  modelFormula: 'Dense reconstructed multi-source estimate — not a measured spectrum (confidence varies per point)',
   source: {
-    ref: 'Multi-source triangulation: Fisher & Hahn, Appl. Opt. 43:5443 (2004); Taroni et al., J. Biomed. Opt. 12:014021 (2007); Davydov et al., Adv. Sci. PMC12591192 (2025); Barth, BBA 1767:1073 (2007); PhotochemCAD Trp/Tyr (OMLC). Collagen treated as the dominant structural protein.',
-    note: 'RECONSTRUCTED ESTIMATE, not a measured spectrum. Each anchor = real source value × explicit tissue concentration; ~×3 uncertainty (see anchor table below). Off by default.',
+    ref: 'Multi-source triangulation (sanity-verified). SWIR 580–1700 nm: Sekar et al., J. Biomed. Opt. 22:015006 (2017), digitized open-access Fig. 2 (measured). UV/amide: peptide & Trp/Tyr ε (PhotochemCAD/OMLC; Anthis & Clore) and Barth, BBA 1767:1073 (2007) × tissue residue concentration. Cross-checked vs Fisher & Hahn (2004), Taroni (2007), Davydov (2025), and reference figures.',
+    note: 'DENSE RECONSTRUCTED ESTIMATE, not a single measured spectrum. SWIR core is real (Sekar, measured); UV peptide peak and mid-IR amide bands are ε×concentration estimates (~×2–3); collagen has ~0 tryptophan so the 280 nm band is small. Per-point confidence (0.35–0.85) and uncertainty range in this file.',
   },
-  gaps: [
-    { fromNm: 950, toNm: 6000, reason: 'No absolute μa anchor between the vis-NIR window and the mid-IR amide bands; SWIR peaks (1200/1500/1725 nm) are figure-only/normalized so absolute values could not be grounded.' },
-  ],
-  enabledByDefault: false,
 };
 const unavailableCurves = [];
 
@@ -187,7 +207,7 @@ used only for layout/trend reference; where literature gives no reliable μa, th
 - Molar extinction ε retained per curve for the reserved concentration dimension (input ⑥).
 - Probes (HbO₂): 415 nm → ${at(hb.oxyhemoglobin.points, 415)}; 532 nm → ${at(hb.oxyhemoglobin.points, 532)}; 1064 nm → ${at(hb.oxyhemoglobin.points, 1064)}.
 
-### Melanin — ${melanin.points.length} model points, 300–1100 nm
+### Melanin — ${melanin.points.length} model points, 250–1100 nm
 - Source: ${melanin.source.ref}
 - Model (NOT tabulated): \`${melanin.modelFormula}\`
 - Gaps: ${melanin.gaps.map((g) => `${g.fromNm}–${g.toNm} nm`).join('; ')} (power-law not meaningful outside vis–NIR).
@@ -198,19 +218,23 @@ used only for layout/trend reference; where literature gives no reliable μa, th
 - Note: ${hydroxyapatite.source.note}
 - Gap: ${hydroxyapatite.gaps[0].fromNm}–${hydroxyapatite.gaps[0].toNm} nm (no tabulated mineral μa; vis–NIR absorption negligible/scattering-dominated).
 
-### Collagen / protein — ${cpAnchors.length} RECONSTRUCTED-ESTIMATE anchors (off by default, drawn dashed)
+### Collagen / protein — ${cpAnchors.length}-point DENSE reconstructed estimate (off by default, drawn dashed)
 Collagen is the dominant structural protein; laser-tissue charts merge "collagen" and "protein"
-into one line, so they are one curve here. **No open absolute μa(λ) dataset exists** (the canonical
-Taroni/Sekar spectra are paywalled figures; SWIR peaks are figure-only/normalized). These anchors
-are the **most-probable absolute μa**, each triangulated from a real source value × an explicit
-tissue-concentration assumption and adversarially verified. **~×3 uncertainty — an estimate, not a
-measurement.** ${collagenProtein.source.ref}
+into one line, so they are one curve here. **No single open absolute μa(λ) dataset spans the range**,
+so this is triangulated from 6 sources and sanity-verified:
+- **SWIR 580–1700 nm (measured, highest confidence):** Sekar et al. 2017 collagen spectrum, digitized
+  from the open-access Fig. 2 (real peaks at 1180, 1500, 1725 nm).
+- **UV peptide/aromatic (190–300 nm):** peptide-bond ε and Trp/Tyr ε (PhotochemCAD/OMLC; Anthis &
+  Clore) × tissue residue concentration. Collagen has ~0 tryptophan → small 280 nm band.
+- **Mid-IR amide A/I/II/III (3030/6060/6450/8000 nm):** Barth 2007 molar absorptions × residue molarity.
+- **Shape cross-checks:** the two reference figures + a skin-optics review.
 
-| nm | μa (cm⁻¹) | plausible range | derivation |
+**Confidence varies per point (0.35–0.85); UV and mid-IR are ~×2–3 estimates, the SWIR core is measured.**
+${collagenProtein.source.ref}
+
+| nm | μa (cm⁻¹) | plausible range | confidence |
 |---|---|---|---|
-${cpAnchors.map((a) => `| ${a.nm} | ${a.mua} | ${a.low}–${a.high} | ${a.how} |`).join('\n')}
-
-Gap ${collagenProtein.gaps[0].fromNm}–${collagenProtein.gaps[0].toNm} nm: ${collagenProtein.gaps[0].reason}
+${cpAnchors.map((a) => `| ${a.nm} | ${a.mua} | ${a.low}–${a.high} | ${a.conf} |`).join('\n')}
 
 ## Known conflict (documented decision)
 Reconstructing from real literature makes the chart differ from any single source figure

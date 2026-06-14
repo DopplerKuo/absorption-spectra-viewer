@@ -48,8 +48,7 @@ describe('dataset schema (DoD: every curve has points + source + unit, no fabric
 
   it('collagen/protein is one merged curve, flagged as a reconstructed estimate (not measured)', () => {
     const c = byId('collagen-protein');
-    expect(c.modelFormula).toMatch(/estimate/i); // honestly labelled, not presented as measured data
-    expect(c.enabledByDefault).toBe(false); // off by default given ~×3 uncertainty
+    expect(c.modelFormula).toMatch(/estimate/i); // honestly labelled (dashed), not presented as measured data
     expect(c.source.ref.length).toBeGreaterThan(20);
     // UV-strong, vis-NIR transparent window, mid-IR amide band — the correct qualitative shape
     expect(at('collagen-protein', 193)!).toBeGreaterThan(1000);
