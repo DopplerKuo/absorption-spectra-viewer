@@ -10,7 +10,7 @@ draw anything.**
 Built for the selective-photothermolysis question: *which laser wavelength is preferentially
 absorbed by which tissue chromophore?*
 
-![Full spectrum](reference/preview.png)
+![Full spectrum](docs/reference/preview.png)
 
 ## What it does
 
@@ -176,7 +176,8 @@ data/
 scripts/          data fetch/convert/build (re-runnable: npm run data)
 app/, index.html  the web app (uses the engine)
 test/             unit tests
-reference/        the 5 source figures (layout/trend reference only)
+docs/             how-it-was-built: handoff prompt, plan, conversation log, source figures
+  docs/reference/  the 5 source figures (layout/trend reference only)
 ```
 
 ## License
