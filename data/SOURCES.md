@@ -19,10 +19,10 @@ used only for layout/trend reference; where literature gives no reliable μa, th
 - Molar extinction ε retained per curve for the reserved concentration dimension (input ⑥).
 - Probes (HbO₂): 415 nm → 2.808e+3 cm⁻¹ (@414 nm); 532 nm → 2.350e+2 cm⁻¹ (@532 nm); 1064 nm → 5.484e+0 cm⁻¹ (@1000 nm).
 
-### Melanin — 81 model points, 300–1100 nm
-- Source: Jacques, S. L., melanosome interior absorption coefficient, OMLC. Power-law fit from Jacques & McAuliffe (1991) Photochem. Photobiol. 53:769; Jacques et al. (1996) SPIE 2681:468.
-- Model (NOT tabulated): `mu_a = 1.70e12 * lambda_nm^(-3.48) [cm^-1] (skin)`
-- Gaps: 180–299 nm; 1101–12000 nm (power-law not meaningful outside vis–NIR).
+### Melanin — 86 model points, 300–1100 nm
+- Source: Jacques, S. L., melanosome absorption power laws (OMLC: mua.html & generic_optics 2015), geometric mean. Cross-validated against measured eumelanin (Sarna & Swartz 1988, via OMLC eumelanin.html): agreement ~3–6% over 400–800 nm.
+- Model (NOT tabulated): `geometric mean of two Jacques melanosome power laws: 1.70e12·λ^-3.48 and 6.6e11·λ^-3.33`
+- Gaps: 180–249 nm; 1101–12000 nm (power-law not meaningful outside vis–NIR).
 
 ### Hydroxyapatite (HA) / dental enamel — 4 points, 9300–10600 nm
 - Source: Zuerlein, Fried, Seka, Featherstone, "Absorption coefficients of dental enamel in the infrared", Proc. SPIE 3248 (1998); 9.6 µm cross-checked vs photothermal radiometry 5000±1000 cm⁻¹, Zuerlein et al., IEEE J. Sel. Top. Quantum Electron. 5(4):1083 (1999).
