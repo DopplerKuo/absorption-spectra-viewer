@@ -21,3 +21,4 @@ npm-debug.log*
 
 # editor / harness internal state
 .claude/
+.vercel
