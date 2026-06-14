@@ -17,7 +17,7 @@ describe('dataset schema (DoD: every curve has points + source + unit, no fabric
     expect(ds.meta.absorptionUnit).toBe('cm^-1');
   });
 
-  it.each(['water', 'oxyhemoglobin', 'deoxyhemoglobin', 'melanin', 'hydroxyapatite'])(
+  it.each(['water', 'oxyhemoglobin', 'deoxyhemoglobin', 'melanin', 'hydroxyapatite', 'collagen-protein'])(
     'curve "%s" has data points, a cited source, ascending finite positive values',
     (id) => {
       const c = byId(id);
@@ -46,14 +46,14 @@ describe('dataset schema (DoD: every curve has points + source + unit, no fabric
     }
   });
 
-  it('components without tabulated μa are declared as gaps, not faked (寧缺勿假)', () => {
-    const ids = (ds.unavailableCurves ?? []).map((c) => c.id);
-    expect(ids).toContain('collagen');
-    expect(ids).toContain('protein');
-    for (const c of ds.unavailableCurves ?? []) {
-      expect(c.references.length).toBeGreaterThan(0);
-      expect(ds.curves.find((x) => x.id === c.id)).toBeUndefined(); // not also plotted
-    }
+  it('collagen/protein is one merged curve, flagged as a reconstructed estimate (not measured)', () => {
+    const c = byId('collagen-protein');
+    expect(c.modelFormula).toMatch(/estimate/i); // honestly labelled, not presented as measured data
+    expect(c.enabledByDefault).toBe(false); // off by default given ~×3 uncertainty
+    expect(c.source.ref.length).toBeGreaterThan(20);
+    // UV-strong, vis-NIR transparent window, mid-IR amide band — the correct qualitative shape
+    expect(at('collagen-protein', 193)!).toBeGreaterThan(1000);
+    expect(at('collagen-protein', 700)!).toBeLessThan(1);
   });
 
   it('every laser has a positive wavelength; the full handoff list is present', () => {

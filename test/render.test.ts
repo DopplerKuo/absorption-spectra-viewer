@@ -54,10 +54,10 @@ describe('renderToSVGString (DoD: SVG output, programmatically generated)', () =
     expect(svg).toMatch(/2\.\d×/); // ~2.9× fold difference
   });
 
-  it('shows unavailable curves in the legend, greyed (寧缺勿假, visible gaps)', () => {
+  it('lists every curve in the legend, including the dashed collagen/protein estimate', () => {
     const svg = renderToSVGString(ds);
-    expect(svg).toContain('No tabulated μa');
-    expect(svg).toContain('Collagen');
+    expect(svg).toContain('Collagen / protein (est.)');
+    expect(svg).toContain('H₂O (Water)');
   });
 
   it('marks the visible-light range only when enabled (off by default, no misleading rainbow)', () => {

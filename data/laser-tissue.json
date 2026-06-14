@@ -8689,6 +8689,50 @@
           "reason": "No tabulated enamel/HA mineral μa below 9.3 µm: vis–NIR absorption negligible/scattering-dominated; OH band ~2.8 µm and overtones (1.5, 2.0 µm) are positions only, no μa (Fried 1995; Zuerlein/Fried)."
         }
       ]
+    },
+    {
+      "id": "collagen-protein",
+      "label": "Collagen / protein (est.)",
+      "color": "#0a8a5c",
+      "points": [
+        [
+          193,
+          13000
+        ],
+        [
+          220,
+          3100
+        ],
+        [
+          280,
+          15
+        ],
+        [
+          700,
+          0.022
+        ],
+        [
+          910,
+          0.022
+        ],
+        [
+          6060,
+          1600
+        ]
+      ],
+      "modelFormula": "Reconstructed multi-source estimate (~×3 uncertainty) — not a measured spectrum",
+      "source": {
+        "ref": "Multi-source triangulation: Fisher & Hahn, Appl. Opt. 43:5443 (2004); Taroni et al., J. Biomed. Opt. 12:014021 (2007); Davydov et al., Adv. Sci. PMC12591192 (2025); Barth, BBA 1767:1073 (2007); PhotochemCAD Trp/Tyr (OMLC). Collagen treated as the dominant structural protein.",
+        "note": "RECONSTRUCTED ESTIMATE, not a measured spectrum. Each anchor = real source value × explicit tissue concentration; ~×3 uncertainty (see anchor table below). Off by default."
+      },
+      "gaps": [
+        {
+          "fromNm": 950,
+          "toNm": 6000,
+          "reason": "No absolute μa anchor between the vis-NIR window and the mid-IR amide bands; SWIR peaks (1200/1500/1725 nm) are figure-only/normalized so absolute values could not be grounded."
+        }
+      ],
+      "enabledByDefault": false
     }
   ],
   "lasers": [
@@ -8764,49 +8808,5 @@
       "wavelengthNm": 10600
     }
   ],
-  "unavailableCurves": [
-    {
-      "id": "collagen",
-      "label": "Collagen (type I)",
-      "reason": "No published per-wavelength μa(cm⁻¹) table spanning the range. Real μa exists only ~500–1700 nm (Sekar/Taroni) but figure-only / paywalled; reading points off a log plot is disallowed. Mid-IR amide region published as relative absorbance (a.u.), not cm⁻¹.",
-      "references": [
-        "Taroni et al., J. Biomed. Opt. 12(1):014021 (2007) — collagen powder, \"always higher than 0.026 cm⁻¹\" 610–1040 nm.",
-        "Sekar et al., J. Biomed. Opt. 22(1):015006 (2017) — 500–1700 nm μa (figure-only).",
-        "Wilson et al., J. Biomed. Opt. 20(3):030901 (2015) — SWIR band positions.",
-        "Viator et al., Phys. Med. Biol. 48:N15 (2003); Belbachir et al., Micron 40:893 (2009) — mid-IR amide positions (a.u.)."
-      ],
-      "bandPositionsNm": [
-        1200,
-        1500,
-        1690,
-        1725,
-        3030,
-        6060,
-        6450,
-        8000
-      ],
-      "note": "Band positions only (NIR overtones + amide A/I/II/III). No μa magnitude — not plotted."
-    },
-    {
-      "id": "protein",
-      "label": "Protein",
-      "reason": "Standard tissue-optics chromophore models (Jacques 2013, OMLC) do NOT include protein. No source tabulates tissue protein μa(λ) in cm⁻¹. Only UV molar extinction (peptide ~190–220 nm, aromatic ~280 nm) and mid-IR amide molar absorption exist; converting to μa needs an assumed tissue protein concentration, so values are estimates, not data.",
-      "references": [
-        "Pace et al., Protein Sci. 4:2411 (1995) — ε280 = 5500·#Trp + 1490·#Tyr + 125·#cystine.",
-        "Barth, BBA Bioenergetics 1767:1073 (2007) — amide I molar absorption 300–400 M⁻¹cm⁻¹.",
-        "Jacques, Phys. Med. Biol. 58:R37 (2013) — tissue chromophore model excludes protein.",
-        "Boulnois, Lasers Med. Sci. 1:47 (1986) — classic schematic chromophore chart (protein line is schematic)."
-      ],
-      "bandPositionsNm": [
-        190,
-        205,
-        220,
-        280,
-        3030,
-        6060,
-        6450
-      ],
-      "note": "UV peptide/aromatic + mid-IR amide positions only. No tabulated tissue μa — not plotted."
-    }
-  ]
+  "unavailableCurves": []
 }

@@ -60,35 +60,35 @@ const lasers = [
   { id: 'co2_106', label: 'CO₂ 10.6µm', wavelengthNm: 10600 },
 ];
 
-// --- Components present in the source figures but WITHOUT reliable tabulated μa. ----
-const unavailableCurves = [
-  {
-    id: 'collagen',
-    label: 'Collagen (type I)',
-    reason: 'No published per-wavelength μa(cm⁻¹) table spanning the range. Real μa exists only ~500–1700 nm (Sekar/Taroni) but figure-only / paywalled; reading points off a log plot is disallowed. Mid-IR amide region published as relative absorbance (a.u.), not cm⁻¹.',
-    references: [
-      'Taroni et al., J. Biomed. Opt. 12(1):014021 (2007) — collagen powder, "always higher than 0.026 cm⁻¹" 610–1040 nm.',
-      'Sekar et al., J. Biomed. Opt. 22(1):015006 (2017) — 500–1700 nm μa (figure-only).',
-      'Wilson et al., J. Biomed. Opt. 20(3):030901 (2015) — SWIR band positions.',
-      'Viator et al., Phys. Med. Biol. 48:N15 (2003); Belbachir et al., Micron 40:893 (2009) — mid-IR amide positions (a.u.).',
-    ],
-    bandPositionsNm: [1200, 1500, 1690, 1725, 3030, 6060, 6450, 8000],
-    note: 'Band positions only (NIR overtones + amide A/I/II/III). No μa magnitude — not plotted.',
-  },
-  {
-    id: 'protein',
-    label: 'Protein',
-    reason: 'Standard tissue-optics chromophore models (Jacques 2013, OMLC) do NOT include protein. No source tabulates tissue protein μa(λ) in cm⁻¹. Only UV molar extinction (peptide ~190–220 nm, aromatic ~280 nm) and mid-IR amide molar absorption exist; converting to μa needs an assumed tissue protein concentration, so values are estimates, not data.',
-    references: [
-      'Pace et al., Protein Sci. 4:2411 (1995) — ε280 = 5500·#Trp + 1490·#Tyr + 125·#cystine.',
-      'Barth, BBA Bioenergetics 1767:1073 (2007) — amide I molar absorption 300–400 M⁻¹cm⁻¹.',
-      'Jacques, Phys. Med. Biol. 58:R37 (2013) — tissue chromophore model excludes protein.',
-      'Boulnois, Lasers Med. Sci. 1:47 (1986) — classic schematic chromophore chart (protein line is schematic).',
-    ],
-    bandPositionsNm: [190, 205, 220, 280, 3030, 6060, 6450],
-    note: 'UV peptide/aromatic + mid-IR amide positions only. No tabulated tissue μa — not plotted.',
-  },
+// --- Collagen / protein: ONE merged curve. Collagen is the dominant structural protein and
+// laser-tissue charts treat them as one line. No open absolute μa(λ) dataset exists, so this is a
+// RECONSTRUCTED ESTIMATE: most-probable absolute μa anchors triangulated from multiple primary
+// sources, each derived from a real value × explicit tissue concentration and adversarially
+// verified. ~×3 uncertain → drawn dashed, labelled "(est.)", OFF by default. ----
+const cpAnchors = [
+  { nm: 193, mua: 13000, low: 6200, high: 19500, how: 'Fisher & Hahn 2004 peptide-bond σ=1.14e-17 cm² (96% of collagen 193 nm absorption) × dermal residue density (ρ≈0.11–0.30 g/cm³, M≈110 g/mol); cross-checked vs corneal μa 16000–39900 cm⁻¹.' },
+  { nm: 220, mua: 3100, low: 1700, high: 5100, how: 'Peptide-bond shoulder ε≈100–300 M⁻¹cm⁻¹ × residue molarity 2.4–3.9 M. Steep band edge → low confidence.' },
+  { nm: 280, mua: 15, low: 8, high: 35, how: 'Aromatic band. Collagen has ZERO tryptophan; only tyrosine (~2–3 per 1000 residues), εTyr≈1209–1490 M⁻¹cm⁻¹. Far below generic (Trp-bearing) protein.' },
+  { nm: 700, mua: 0.022, low: 0.01, high: 0.04, how: 'Taroni 2007 collagen powder floor (μa>0.026 cm⁻¹ at ρ=0.196 g/cm³) scaled to tissue collagen density. Optical window — weak absorber.' },
+  { nm: 910, mua: 0.022, low: 0.012, high: 0.05, how: 'Davydov 2025 (open access) collagen extinction shape on the Taroni absolute scale; C–H overtone region.' },
+  { nm: 6060, mua: 1600, low: 700, high: 2500, how: 'Amide I (C=O stretch, 1650 cm⁻¹) molar absorption 300–400 M⁻¹cm⁻¹ (Barth 2007) × residue molarity. Overlaps strong water IR absorption.' },
 ];
+const collagenProtein = {
+  id: 'collagen-protein',
+  label: 'Collagen / protein (est.)',
+  color: '#0a8a5c',
+  points: cpAnchors.map((a) => [a.nm, a.mua]),
+  modelFormula: 'Reconstructed multi-source estimate (~×3 uncertainty) — not a measured spectrum',
+  source: {
+    ref: 'Multi-source triangulation: Fisher & Hahn, Appl. Opt. 43:5443 (2004); Taroni et al., J. Biomed. Opt. 12:014021 (2007); Davydov et al., Adv. Sci. PMC12591192 (2025); Barth, BBA 1767:1073 (2007); PhotochemCAD Trp/Tyr (OMLC). Collagen treated as the dominant structural protein.',
+    note: 'RECONSTRUCTED ESTIMATE, not a measured spectrum. Each anchor = real source value × explicit tissue concentration; ~×3 uncertainty (see anchor table below). Off by default.',
+  },
+  gaps: [
+    { fromNm: 950, toNm: 6000, reason: 'No absolute μa anchor between the vis-NIR window and the mid-IR amide bands; SWIR peaks (1200/1500/1725 nm) are figure-only/normalized so absolute values could not be grounded.' },
+  ],
+  enabledByDefault: false,
+};
+const unavailableCurves = [];
 
 // --- Curves with display metadata + concentration dimension (reserved, input ⑥). --
 const HB_NOTE = hb.conversion.formula + ` (default x = ${hb.conversion.defaultConcentration} ${hb.conversion.concentrationUnit})`;
@@ -136,6 +136,7 @@ const curves = [
     enabledByDefault: true,
   },
   hydroxyapatite,
+  collagenProtein,
 ];
 
 const dataset = {
@@ -197,17 +198,19 @@ used only for layout/trend reference; where literature gives no reliable μa, th
 - Note: ${hydroxyapatite.source.note}
 - Gap: ${hydroxyapatite.gaps[0].fromNm}–${hydroxyapatite.gaps[0].toNm} nm (no tabulated mineral μa; vis–NIR absorption negligible/scattering-dominated).
 
-## Components WITHOUT reliable tabulated μa (declared gaps, not plotted)
+### Collagen / protein — ${cpAnchors.length} RECONSTRUCTED-ESTIMATE anchors (off by default, drawn dashed)
+Collagen is the dominant structural protein; laser-tissue charts merge "collagen" and "protein"
+into one line, so they are one curve here. **No open absolute μa(λ) dataset exists** (the canonical
+Taroni/Sekar spectra are paywalled figures; SWIR peaks are figure-only/normalized). These anchors
+are the **most-probable absolute μa**, each triangulated from a real source value × an explicit
+tissue-concentration assumption and adversarially verified. **~×3 uncertainty — an estimate, not a
+measurement.** ${collagenProtein.source.ref}
 
-${unavailableCurves
-  .map(
-    (c) => `### ${c.label}
-- Reason: ${c.reason}
-- Band positions (nm, positions only): ${c.bandPositionsNm.join(', ')}
-- References:
-${c.references.map((r) => `  - ${r}`).join('\n')}`,
-  )
-  .join('\n\n')}
+| nm | μa (cm⁻¹) | plausible range | derivation |
+|---|---|---|---|
+${cpAnchors.map((a) => `| ${a.nm} | ${a.mua} | ${a.low}–${a.high} | ${a.how} |`).join('\n')}
+
+Gap ${collagenProtein.gaps[0].fromNm}–${collagenProtein.gaps[0].toNm} nm: ${collagenProtein.gaps[0].reason}
 
 ## Known conflict (documented decision)
 Reconstructing from real literature makes the chart differ from any single source figure

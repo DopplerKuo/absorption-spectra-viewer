@@ -1124,4 +1124,64 @@ reference 把它改成 docs 裡面
 
 幾乎乾淨了(12 個真實 prompt),但有 3 個是 skill 載入(「Base directory for this skill」)混進來。加進過濾再跑:
 
-<sub>🛠 Bash×4, Write, Edit×2</sub>
+乾淨了:12 個真實 prompt + 12 則回覆,工具略過、文字保留。更新 README 路徑(reference→docs/reference)並加 docs 索引:
+
+建立 `docs/README.md` 索引(說明這份「製作過程」文件夾):
+
+commit + push 這批 docs 重整:
+
+完成並推送(`901f695`)。
+
+`docs/` 現在內容:
+- **`docs/reference/`** — 原本的 `reference/`(5 張原始圖)已 `git mv` 進來(歷史保留為 rename)。
+- **`docs/handoff-prompt.md`** — 最初的任務交接 prompt。
+- **`docs/implementation-plan.md`** — 實作計畫。
+- **`docs/CONVERSATION.md`** — 從本對話 JSONL 萃取的對話紀錄:**12 個你的 prompt + 12 則我的回覆**,略過工具 I/O、內部思考、系統訊息,每則回覆附使用的工具清單。給別人看「怎麼做的」剛好。
+- **`docs/README.md`** — docs 索引。
+
+README 的圖片與結構路徑已更新指向 `docs/reference/`。
+
+兩點說明:
+- CONVERSATION.md 是**到目前為止的快照**(transcript 尚未寫入「這一回合」),收尾時我可以再重生一次補上最新內容。
+- collagen/protein 的多源 μa 研究 **workflow 仍在背景跑**,回來後我會建那條重建估計曲線、合併兩條、更新 SOURCES/測試,再 commit + 重新部署。
+
+要我現在就把這幾個 docs 變更也重新部署嗎(其實 Vercel 只服務 app,docs 不影響線上站,可不必)？
+
+研究 workflow 完成:**7 個經對抗式驗證、可溯源的絕對 μa 錨點**。通知被截斷,我從輸出檔擷取完整錨點清單(只取結構化結果,不載入整份 transcript):
+
+完整 7 錨點(經對抗式驗證、可溯源):
+
+| nm | μa (cm⁻¹) | 範圍 | 來源 |
+|---|---|---|---|
+| 193 | 13000 | 6200–19500 | Fisher&Hahn σ→真皮 |
+| 220 | 3100 | 1700–5100 | 胜肽鍵 ε |
+| 280 | 15 | 8–35 | Tyr ε(collagen 無 Trp) |
+| 700 | 0.022 | 0.01–0.04 | Taroni 粉末 |
+| 910 | 0.022 | 0.012–0.05 | Davydov/Taroni |
+| 6060 | 1600 | 700–2500 | Barth Amide I |
+
+(190nm 那點與 193nm 用不同假設、差 3.5×、矛盾 → 採信實測截面的 193nm,捨 190;SWIR 峰因只有 normalized 圖無法定絕對值 → 0 錨點,該段標缺口。)
+
+這正是蛋白質吸收的正確定性形狀:UV 強峰 → 可見-近紅外透明窗(~0.02)→ 中紅外 amide 帶。**全是 ~×3 不確定的重建估計**,會明確標 dashed + 「(est.)」+ 預設關閉,完整出處寫進 SOURCES。
+
+合併兩條缺口為這一條。改 build_dataset:
+
+用驗證過的錨點建「Collagen / protein (est.)」估計曲線、合併兩條缺口、預設關閉(因 ×3 不確定):
+
+更新 SOURCES.md 段落(原本列 unavailable,改成 collagen/protein 估計錨點表):
+
+重建資料集:
+
+更新 dataset.test.ts(加 collagen-protein、改寫缺口斷言):
+
+Let me find the `it.each` curve list line and update both spots:
+
+`render.test` 那條檢查「unavailable 圖例」的測試需更新(現已無 unavailable)。改成檢查 collagen/protein 估計曲線出現在圖例:
+
+65 tests 綠、tsc 乾淨。瀏覽器驗證新曲線(打開 collagen/protein 估計線看形狀):
+
+collagen/protein 估計線正確顯示:綠色虛線+圓點——UV 強峰(193nm ~1.3e4)→ 衰減 → 可見-近紅外透明窗(~0.02)→ 缺口(950–6000 不連)→ 中紅外 amide I 孤立點(6060nm ~1600)。正確的蛋白質吸收定性形狀,dashed=估計、dots=錨點、預設關閉。
+
+重生預設預覽圖(估計線預設關)、回歸、commit、部署:
+
+<sub>🛠 Bash×12, Write×2, Edit×10, Read×4, mcp__playwright__browser_navigate×2, mcp__playwright__browser_evaluate, mcp__playwright__browser_take_screenshot×2</sub>

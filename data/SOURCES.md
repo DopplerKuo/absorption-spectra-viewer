@@ -30,25 +30,24 @@ used only for layout/trend reference; where literature gives no reliable μa, th
 - Note: Dental enamel mineral (~85% HA). Values as-cited from derivative literature (primary SPIE text gated). Absorption peaks 9.75–10 µm; 9.6 µm alt. 5000±1000 cm⁻¹. 9.6 µm ≈ 10× 10.6 µm.
 - Gap: 180–9290 nm (no tabulated mineral μa; vis–NIR absorption negligible/scattering-dominated).
 
-## Components WITHOUT reliable tabulated μa (declared gaps, not plotted)
+### Collagen / protein — 6 RECONSTRUCTED-ESTIMATE anchors (off by default, drawn dashed)
+Collagen is the dominant structural protein; laser-tissue charts merge "collagen" and "protein"
+into one line, so they are one curve here. **No open absolute μa(λ) dataset exists** (the canonical
+Taroni/Sekar spectra are paywalled figures; SWIR peaks are figure-only/normalized). These anchors
+are the **most-probable absolute μa**, each triangulated from a real source value × an explicit
+tissue-concentration assumption and adversarially verified. **~×3 uncertainty — an estimate, not a
+measurement.** Multi-source triangulation: Fisher & Hahn, Appl. Opt. 43:5443 (2004); Taroni et al., J. Biomed. Opt. 12:014021 (2007); Davydov et al., Adv. Sci. PMC12591192 (2025); Barth, BBA 1767:1073 (2007); PhotochemCAD Trp/Tyr (OMLC). Collagen treated as the dominant structural protein.
 
-### Collagen (type I)
-- Reason: No published per-wavelength μa(cm⁻¹) table spanning the range. Real μa exists only ~500–1700 nm (Sekar/Taroni) but figure-only / paywalled; reading points off a log plot is disallowed. Mid-IR amide region published as relative absorbance (a.u.), not cm⁻¹.
-- Band positions (nm, positions only): 1200, 1500, 1690, 1725, 3030, 6060, 6450, 8000
-- References:
-  - Taroni et al., J. Biomed. Opt. 12(1):014021 (2007) — collagen powder, "always higher than 0.026 cm⁻¹" 610–1040 nm.
-  - Sekar et al., J. Biomed. Opt. 22(1):015006 (2017) — 500–1700 nm μa (figure-only).
-  - Wilson et al., J. Biomed. Opt. 20(3):030901 (2015) — SWIR band positions.
-  - Viator et al., Phys. Med. Biol. 48:N15 (2003); Belbachir et al., Micron 40:893 (2009) — mid-IR amide positions (a.u.).
+| nm | μa (cm⁻¹) | plausible range | derivation |
+|---|---|---|---|
+| 193 | 13000 | 6200–19500 | Fisher & Hahn 2004 peptide-bond σ=1.14e-17 cm² (96% of collagen 193 nm absorption) × dermal residue density (ρ≈0.11–0.30 g/cm³, M≈110 g/mol); cross-checked vs corneal μa 16000–39900 cm⁻¹. |
+| 220 | 3100 | 1700–5100 | Peptide-bond shoulder ε≈100–300 M⁻¹cm⁻¹ × residue molarity 2.4–3.9 M. Steep band edge → low confidence. |
+| 280 | 15 | 8–35 | Aromatic band. Collagen has ZERO tryptophan; only tyrosine (~2–3 per 1000 residues), εTyr≈1209–1490 M⁻¹cm⁻¹. Far below generic (Trp-bearing) protein. |
+| 700 | 0.022 | 0.01–0.04 | Taroni 2007 collagen powder floor (μa>0.026 cm⁻¹ at ρ=0.196 g/cm³) scaled to tissue collagen density. Optical window — weak absorber. |
+| 910 | 0.022 | 0.012–0.05 | Davydov 2025 (open access) collagen extinction shape on the Taroni absolute scale; C–H overtone region. |
+| 6060 | 1600 | 700–2500 | Amide I (C=O stretch, 1650 cm⁻¹) molar absorption 300–400 M⁻¹cm⁻¹ (Barth 2007) × residue molarity. Overlaps strong water IR absorption. |
 
-### Protein
-- Reason: Standard tissue-optics chromophore models (Jacques 2013, OMLC) do NOT include protein. No source tabulates tissue protein μa(λ) in cm⁻¹. Only UV molar extinction (peptide ~190–220 nm, aromatic ~280 nm) and mid-IR amide molar absorption exist; converting to μa needs an assumed tissue protein concentration, so values are estimates, not data.
-- Band positions (nm, positions only): 190, 205, 220, 280, 3030, 6060, 6450
-- References:
-  - Pace et al., Protein Sci. 4:2411 (1995) — ε280 = 5500·#Trp + 1490·#Tyr + 125·#cystine.
-  - Barth, BBA Bioenergetics 1767:1073 (2007) — amide I molar absorption 300–400 M⁻¹cm⁻¹.
-  - Jacques, Phys. Med. Biol. 58:R37 (2013) — tissue chromophore model excludes protein.
-  - Boulnois, Lasers Med. Sci. 1:47 (1986) — classic schematic chromophore chart (protein line is schematic).
+Gap 950–6000 nm: No absolute μa anchor between the vis-NIR window and the mid-IR amide bands; SWIR peaks (1200/1500/1725 nm) are figure-only/normalized so absolute values could not be grounded.
 
 ## Known conflict (documented decision)
 Reconstructing from real literature makes the chart differ from any single source figure
