@@ -14,19 +14,31 @@ const userCurves = new Set<string>();
 const userLasers = new Set<string>();
 let pendingFillId: string | null = null;
 
-// ---- view: an editable wavelength-range input that doubles as the live range readout ----
+// ---- view: editable x (nm) and y (μa) range inputs that double as the live range readout ----
 const readout = $('readout');
 const rangeFrom = $<HTMLInputElement>('rangeFrom');
 const rangeTo = $<HTMLInputElement>('rangeTo');
-function setRange(d: [number, number]) {
-  rangeFrom.value = String(Math.round(d[0]));
-  rangeTo.value = String(Math.round(d[1]));
+const rangeYFrom = $<HTMLInputElement>('rangeYFrom');
+const rangeYTo = $<HTMLInputElement>('rangeYTo');
+const fmtY = (v: number) => (v >= 1000 || (v > 0 && v < 0.01) ? (+v.toPrecision(3)).toExponential() : String(+v.toPrecision(4)));
+function setRange(x: [number, number], y: [number, number]) {
+  rangeFrom.value = String(Math.round(x[0]));
+  rangeTo.value = String(Math.round(x[1]));
+  rangeYFrom.value = fmtY(y[0]);
+  rangeYTo.value = fmtY(y[1]);
 }
-function applyRange() {
+function applyX() {
   const a = Number(rangeFrom.value);
   const b = Number(rangeTo.value);
   if (a > 0 && b > 0 && a !== b) chart.zoomTo(a, b);
 }
+function applyY() {
+  const a = Number(rangeYFrom.value);
+  const b = Number(rangeYTo.value);
+  if (a > 0 && b > 0 && a !== b) chart.setYDomain(a, b);
+}
+
+let activeLasers: string[] = [];
 
 const chart = new AbsorptionSpectrum('#chart', dataset, {
   interactiveQuery: true,
@@ -37,17 +49,20 @@ const chart = new AbsorptionSpectrum('#chart', dataset, {
   fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
   visibleBand: { fromNm: 380, toNm: 700 },
   onQuery: setReadout,
-  onZoom(domain) {
-    setRange(domain);
+  onZoom(x, y) {
+    setRange(x, y);
   },
-  onBrush(range) {
-    setRange(range ?? chart.getState().xDomain); // live numeric range while drag-selecting
+  onBrush(box) {
+    const s = chart.getState();
+    setRange(box ? [box.xFrom, box.xTo] : s.xDomain, box ? [box.yFrom, box.yTo] : s.yDomain); // live while dragging
   },
-  onLaserSelect(id) {
-    laserChips.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', (c as HTMLElement).dataset.id === id));
+  onLaserSelect(ids) {
+    activeLasers = ids;
+    laserChips.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', ids.includes((c as HTMLElement).dataset.id!)));
+    renderLaserReadout();
   },
 });
-setRange(chart.getState().xDomain);
+setRange(chart.getState().xDomain, chart.getState().yDomain);
 
 function setReadout(nm: number, values: Record<string, number | null>) {
   const parts = Object.entries(values)
@@ -55,18 +70,45 @@ function setReadout(nm: number, values: Record<string, number | null>) {
     .map(([id, v]) => `<span style="color:${curveById(id)?.color ?? '#1a1714'}">${curveById(id)?.label ?? id} ${fmtMua(v)}</span>`);
   readout.innerHTML = `<b>${Math.round(nm)} nm</b>&ensp;` + (parts.length ? parts.join('&ensp;&ensp;') : '<span class="empty">no data here</span>');
 }
-function resetReadout() {
-  readout.innerHTML = '<span class="empty">Hover the chart to read μa at any wavelength</span>';
+function renderLaserReadout() {
+  if (!activeLasers.length) {
+    resetReadout();
+    return;
+  }
+  const lasers = chart.getDataset().lasers;
+  readout.innerHTML = activeLasers
+    .map((id) => {
+      const l = lasers.find((x) => x.id === id);
+      if (!l) return '';
+      const parts = Object.entries(chart.queryAt(l.wavelengthNm))
+        .filter(([, v]) => v != null)
+        .map(([cid, v]) => `<span style="color:${curveById(cid)?.color}">${curveById(cid)?.label} ${fmtMua(v)}</span>`);
+      return `<b>${l.label} ${l.wavelengthNm} nm</b>&ensp;` + (parts.length ? parts.join('&ensp;') : '<span class="empty">no data</span>');
+    })
+    .join('<br>');
 }
-$('chart').addEventListener('mouseleave', () => {
-  if (chart.getState().activeLaserId == null) resetReadout();
+function resetReadout() {
+  if (activeLasers.length) {
+    renderLaserReadout();
+    return;
+  }
+  readout.innerHTML = '<span class="empty">Hover to read μa · drag a box to zoom · click lasers to compare</span>';
+}
+$('chart').addEventListener('pointerleave', () => {
+  if (!activeLasers.length) resetReadout();
 });
 
-// the range box: type a range to zoom, or read the live range as you drag/scroll the chart
+// range inputs: type to set, or read the live range while dragging/scrolling
 for (const inp of [rangeFrom, rangeTo]) {
-  inp.addEventListener('change', applyRange);
+  inp.addEventListener('change', applyX);
   inp.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key === 'Enter') applyRange();
+    if ((e as KeyboardEvent).key === 'Enter') applyX();
+  });
+}
+for (const inp of [rangeYFrom, rangeYTo]) {
+  inp.addEventListener('change', applyY);
+  inp.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Enter') applyY();
   });
 }
 $('rangeFull').addEventListener('click', () => chart.resetZoom());
@@ -173,11 +215,11 @@ $('impAdd').addEventListener('click', () => {
 // ================= DATA LAYER 2: Lasers =================
 const laserChips = $('laserChips');
 function buildLaserChips() {
-  const active = chart.getState().activeLaserId;
+  const active = new Set(chart.getState().activeLaserIds);
   laserChips.innerHTML = '';
   for (const l of chart.getDataset().lasers) {
     const chip = document.createElement('button');
-    chip.className = 'chip' + (l.id === active ? ' on' : '');
+    chip.className = 'chip' + (active.has(l.id) ? ' on' : '');
     chip.dataset.id = l.id;
     chip.title = `${l.label} · ${l.wavelengthNm} nm`;
     chip.append(l.label);
@@ -193,7 +235,7 @@ function buildLaserChips() {
       });
       chip.appendChild(x);
     }
-    chip.addEventListener('click', () => chart.selectLaser(chip.classList.contains('on') ? null : l.id));
+    chip.addEventListener('click', () => chart.toggleLaser(l.id));
     laserChips.appendChild(chip);
   }
 }
@@ -203,13 +245,13 @@ const laserAll = $<HTMLButtonElement>('laserAll');
 const laserNone = $<HTMLButtonElement>('laserNone');
 laserAll.addEventListener('click', () => {
   chart.showLasers('all');
-  chart.selectLaser(null);
+  chart.selectLasers([]);
   laserAll.classList.add('active');
   laserNone.classList.remove('active');
 });
 laserNone.addEventListener('click', () => {
   chart.showLasers('none');
-  chart.selectLaser(null);
+  chart.selectLasers([]);
   laserNone.classList.add('active');
   laserAll.classList.remove('active');
 });

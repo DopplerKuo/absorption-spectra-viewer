@@ -154,11 +154,12 @@
       .chip .x { opacity: 0.6; }
       .chip .x:hover { opacity: 1; }
 
-      .chartbar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+      .chartbar { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
       .rangebox { display: flex; align-items: center; gap: 6px; }
-      .rangebox input { width: 66px; font-family: var(--mono); font-size: 12px; text-align: right; }
+      .rangebox .ax { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+      .rangebox input { width: 62px; font-family: var(--mono); font-size: 12px; text-align: right; }
       .rangebox .dash, .rangebox .unit { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-      .rangebox button { font-size: 11.5px; padding: 4px 10px; margin-left: 4px; }
+      .chartbar > button { font-size: 11.5px; padding: 4px 10px; }
 
       .field { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
       .field .k { font-family: var(--mono); font-size: 11px; color: var(--muted); }
@@ -182,7 +183,7 @@
         overflow: hidden;
       }
       #chart { padding: 14px 14px 6px; }
-      #chart svg { max-width: 100%; height: auto; display: block; cursor: crosshair; }
+      #chart svg { max-width: 100%; height: auto; display: block; cursor: crosshair; touch-action: none; }
 
       .readout {
         font-family: var(--mono);
@@ -198,6 +199,16 @@
       .foot { margin-top: 18px; font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
       .foot a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
       .foot a:hover { color: var(--ink); }
+
+      /* --- mobile / narrow screens --- */
+      @media (max-width: 820px) {
+        header { padding: 18px 18px 12px; }
+        .layout { grid-template-columns: 1fr; gap: 18px; padding: 16px; }
+        .canvas { order: -1; } /* chart first on small screens */
+        .chartwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        #chart { min-width: 560px; } /* keep the chart legible; swipe horizontally */
+        .chartbar { gap: 10px 14px; }
+      }
     </style>
   </head>
   <body>
@@ -270,9 +281,12 @@
       <main class="canvas">
         <div class="chartbar">
           <div class="rangebox">
-            <input type="number" id="rangeFrom" /><span class="dash">–</span><input type="number" id="rangeTo" /><span class="unit">nm</span>
-            <button id="rangeFull">Full</button>
+            <span class="ax">λ</span><input type="number" id="rangeFrom" /><span class="dash">–</span><input type="number" id="rangeTo" /><span class="unit">nm</span>
           </div>
+          <div class="rangebox">
+            <span class="ax">μa</span><input type="number" id="rangeYFrom" /><span class="dash">–</span><input type="number" id="rangeYTo" /><span class="unit">cm⁻¹</span>
+          </div>
+          <button id="rangeFull">Full</button>
         </div>
         <div class="chartwrap">
           <div id="chart"></div>

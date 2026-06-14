@@ -25,13 +25,13 @@ export interface RenderOptions {
   /** Laser markers to draw: ids, 'all', or 'none'. Default 'all'. */
   lasers?: string[] | 'all' | 'none';
   /** Highlight one laser (e.g. the selected one) and pin a μa readout at its wavelength. */
-  activeLaserId?: string | null;
+  activeLaserIds?: string[];
   /** Draw a query cursor + per-curve readout at this wavelength (input ①). */
   query?: number | null;
   /** Draw a two-wavelength comparison annotation (input ⑤). */
   compare?: { a: number; b: number; curveId: string } | null;
-  /** Draw a drag-to-zoom selection band while the user is brushing. */
-  brush?: { fromNm: number; toNm: number } | null;
+  /** Draw a drag-to-zoom selection while brushing. With fromMua/toMua it is a 2D rectangle. */
+  brush?: { fromNm: number; toNm: number; fromMua?: number; toMua?: number } | null;
   title?: string;
   showLegend?: boolean;
   background?: string;
@@ -240,13 +240,13 @@ export function renderToSVGString(dataset: Dataset, opts: RenderOptions = {}): s
       : lasersOpt === 'all'
         ? dataset.lasers
         : dataset.lasers.filter((l) => (lasersOpt as string[]).includes(l.id));
-  const activeId = opts.activeLaserId ?? null;
+  const activeIds = new Set(opts.activeLaserIds ?? []);
   const ACCENT = '#b42318';
   const inView = laserList.filter((l) => l.wavelengthNm >= xDomain[0] && l.wavelengthNm <= xDomain[1]);
   const laserParts: string[] = [];
   for (const l of inView) {
     const x = r2(xs(l.wavelengthNm));
-    const on = l.id === activeId;
+    const on = activeIds.has(l.id);
     if (l.rangeNm) {
       const bx0 = r2(xs(Math.max(l.rangeNm[0], xDomain[0])));
       const bx1 = r2(xs(Math.min(l.rangeNm[1], xDomain[1])));
@@ -260,7 +260,7 @@ export function renderToSVGString(dataset: Dataset, opts: RenderOptions = {}): s
   // laser labels (with invisible wide hit-targets for clicking) drawn above the plot
   const laserLabels = inView.map((l) => {
     const x = r2(xs(l.wavelengthNm));
-    const on = l.id === activeId;
+    const on = activeIds.has(l.id);
     return (
       `<g data-laser="${esc(l.id)}" style="cursor:pointer">` +
       `<rect x="${x - 7}" y="${y0}" width="14" height="${y1 - y0}" fill="transparent"/>` +
@@ -289,13 +289,16 @@ export function renderToSVGString(dataset: Dataset, opts: RenderOptions = {}): s
   }
   parts.push(`<g clip-path="url(#plot)" data-layer="curves">${curveParts.join('')}</g>`);
 
-  // --- drag-to-zoom selection band ---
+  // --- drag-to-zoom selection (2D rectangle; spans full height if no μa bounds given) ---
   if (opts.brush) {
     const bx0 = r2(xs(Math.max(Math.min(opts.brush.fromNm, opts.brush.toNm), xDomain[0])));
     const bx1 = r2(xs(Math.min(Math.max(opts.brush.fromNm, opts.brush.toNm), xDomain[1])));
-    if (bx1 > bx0)
+    const hasY = opts.brush.fromMua != null && opts.brush.toMua != null;
+    const by0 = hasY ? r2(ys(Math.max(opts.brush.fromMua!, opts.brush.toMua!))) : y0;
+    const by1 = hasY ? r2(ys(Math.min(opts.brush.fromMua!, opts.brush.toMua!))) : y1;
+    if (bx1 > bx0 && by1 > by0)
       parts.push(
-        `<g clip-path="url(#plot)"><rect x="${bx0}" y="${y0}" width="${r2(bx1 - bx0)}" height="${y1 - y0}" fill="#1f77b4" opacity="0.14" stroke="#1f77b4" stroke-width="1"/></g>`,
+        `<g clip-path="url(#plot)"><rect x="${bx0}" y="${by0}" width="${r2(bx1 - bx0)}" height="${r2(by1 - by0)}" fill="#1f77b4" opacity="0.14" stroke="#1f77b4" stroke-width="1"/></g>`,
       );
   }
 
