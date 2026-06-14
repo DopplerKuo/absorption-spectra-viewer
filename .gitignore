@@ -1,6 +1,7 @@
 # dependencies & build output
 node_modules/
 dist/
+lib/
 
 # intermediate data (regenerate with `npm run data`); the assembled data/ is committed
 scripts/raw/

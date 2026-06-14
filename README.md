@@ -35,9 +35,10 @@ simulation. The data model reserves room for concentration only; nothing else is
 ```bash
 npm install
 npm run dev        # run the app at http://localhost:5173
-npm test           # 46 unit tests (engine math, query, render, data sanity)
+npm test           # 64 unit tests (engine math, query, render, parse, data sanity)
 npm run typecheck
-npm run build      # library bundle -> dist/photolyze.js (ESM) + .umd.cjs
+npm run build      # build the web app -> dist/ (deployable static site)
+npm run build:lib  # build the reusable engine -> lib/ (ESM + UMD)
 npm run data       # re-fetch + rebuild data/laser-tissue.json from sources
 ```
 

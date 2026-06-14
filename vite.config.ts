@@ -1,15 +1,10 @@
 import { defineConfig } from 'vite';
 
-// Library build (`vite build`) bundles the framework-agnostic engine from src/index.ts.
-// Dev server (`vite`) serves the root index.html app, which imports ./app/main.ts.
+// `vite` / `vite build` run the WEB APP (root index.html -> dist/), which is what gets deployed.
+// The reusable library bundle is built separately via `npm run build:lib` (vite.lib.config.ts).
 export default defineConfig({
   build: {
-    lib: {
-      entry: 'src/index.ts',
-      name: 'Photolyze',
-      fileName: 'photolyze',
-      formats: ['es', 'umd'],
-    },
+    outDir: 'dist',
     sourcemap: true,
   },
   test: {
