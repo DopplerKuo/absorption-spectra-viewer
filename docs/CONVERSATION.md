@@ -1446,4 +1446,68 @@ Now add the solid/dashed explanation to the chart foot:
 
 更新 README 預覽、commit、部署:
 
-<sub>🛠 Bash×5, Read×4, Edit×6, mcp__playwright__browser_navigate×3, ToolSearch, mcp__playwright__browser_close, mcp__playwright__browser_take_screenshot×2</sub>
+兩點都做好且上線了。
+
+**1. 預設全部打開** ✅ — 所有曲線(含 collagen/protein 那條密集估計線)現在預設都顯示。
+
+**2. 虛線的意思**——已在圖下方寫清楚:**solid = measured(實線=量測:水、血紅素、HA)**;**dashed = model/estimate(虛線=非直接量測:melanin 是冪律模型、collagen/protein 是多源重建估計)**。
+
+順帶,collagen/protein 已從 6 點升級成 **28 點密集多源曲線**(Sekar 2017 實測 SWIR + UV/amide 換算 + 參考圖,逐點信心 0.35–0.85),melanin 也已是兩律幾何平均。
+
+- 已 push(`9829f81`)+ 重新部署。
+- 線上最新版:**https://absorption-spectra-viewer.vercel.app**
+
+現在打開網址就能看到:所有曲線預設顯示,實線/虛線一眼區分量測 vs 估計,collagen/protein 是完整形狀的密集虛線。
+
+<sub>🛠 Bash×6, Read×4, Edit×6, mcp__playwright__browser_navigate×3, ToolSearch, mcp__playwright__browser_close, mcp__playwright__browser_take_screenshot×2</sub>
+
+---
+
+### 🧑 User
+
+所以還有什麼我說的但你沒做的
+
+### 🤖 Assistant
+
+誠實盤點,你說過但我**還沒照做/還沒定案**的只有兩項,其餘都已完成且上線:
+
+**1. 「自行加入 Curve」UI 的去留(你的 #5)**
+你說過「如果 #4 找到資料,加入 Curve 的 UI 可以去掉」。#4 我找到了(密集多源曲線已畫上),但我**刻意保留**了「+ Add a curve / + Add a laser」表單——因為它同時是你更早要的「**終端使用者自行匯入資料**」功能(兩者都要)。所以我沒移除,留給你定:**移除 還是 保留當匯入功能**?
+
+**2. X 軸「省略符號」(你的 #2)**
+我只**口頭解釋**了它是 log 軸、log 不用斷裂符號,但**沒有動任何程式**。如果你其實是想要圖上加「軸斷裂 //」記號,那我還沒做。要加嗎?
+
+---
+
+**其餘你提過的都已做完並上線**:手機版、Y 軸縮放+矩形框選、雷射多選、collagen/protein 合併+28 點密集多源、melanin 兩律幾何平均、預設全開、虛線說明、demo→app 改名、移除假按鈕、docs/(reference+handoff+plan+對話紀錄)、.gitignore+清雜圖、GitHub push、Vercel 部署。
+
+(小註:`docs/CONVERSATION.md` 是快照,目前抓到的對話到「docs 整理」那回合;最後收尾時我可再重生一次補上後面的內容。)
+
+你要我怎麼處理上面兩項?
+
+---
+
+### 🧑 User
+
+1. 去掉。去除乾淨
+2. X 軸到底是不是線性的？如果不是要怎麼呈現比較好
+3. X 軸縮放值是什麼 1e-4, 1e+5 這是正確顯示對齁？
+4. 還有什麼該處理沒處理的？
+
+### 🤖 Assistant
+
+逐項處理:
+
+**1. 「自行加入 Curve/Laser」UI 整個移除乾淨**——先讀目前結構再刪:
+
+移除現在用不到的 CSS:
+
+清理 `app/main.ts`,移除所有新增/匯入相關接線(保留瀏覽/縮放/雷射多選/比較):
+
+移除 UI 後跑回歸(引擎的程式化 API 與資料可抽換能力保留,那是你定的「資料即輸入」核心;只拿掉終端 UI):
+
+Bundle 變小(移除了 UI 程式碼)。更新 README 移除「app 內建匯入面板」的描述(開發者 API 保留):
+
+移除完成,bundle 變小、65 tests 綠、README 更新。瀏覽器確認 UI 乾淨(無 Add 按鈕)且無錯誤:
+
+<sub>🛠 Read×4, Edit×5, Bash×4, Write, mcp__playwright__browser_navigate, mcp__playwright__browser_evaluate</sub>

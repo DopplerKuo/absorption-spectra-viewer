@@ -95,42 +95,6 @@
       }
       label.row input[type="checkbox"] { accent-color: var(--ink); width: 14px; height: 14px; }
       .swatch { width: 16px; height: 3px; border-radius: 2px; flex: none; }
-      .rowx {
-        margin-left: auto;
-        border: none;
-        background: none;
-        color: var(--faint);
-        cursor: pointer;
-        font-size: 14px;
-        line-height: 1;
-        padding: 0 2px;
-      }
-      .rowx:hover { color: var(--ink); }
-
-      .addlink {
-        width: 100%; text-align: left; margin-top: 9px;
-        border: 1px dashed var(--line); border-radius: 7px; padding: 7px 10px;
-        background: none; color: var(--muted);
-      }
-      .addlink:hover { border-color: var(--faint); color: var(--ink); }
-      .addform {
-        margin-top: 10px; padding: 12px; border: 1px solid var(--line);
-        border-radius: 8px; background: var(--paper); display: flex; flex-direction: column; gap: 8px;
-      }
-      .addform[hidden] { display: none; }
-      .addform input[type="text"], .addform textarea { width: 100%; }
-      .addform textarea {
-        font-family: var(--mono); font-size: 11.5px; color: var(--ink); background: var(--panel);
-        border: 1px solid var(--line); border-radius: 7px; padding: 8px; resize: vertical; line-height: 1.5;
-      }
-      .addform .top { display: flex; gap: 8px; align-items: center; }
-      .row.gap { color: var(--faint); }
-      .row.gap .swatch { background: none !important; border: 1px dashed var(--faint); height: 7px; }
-      .row.gap .addhere {
-        margin-left: auto; border: none; background: none; color: var(--muted);
-        cursor: pointer; font-size: 11px; padding: 0; border-bottom: 1px solid var(--faint);
-      }
-      .row.gap .addhere:hover { color: var(--ink); }
 
       button, select, input[type="text"], input[type="number"] {
         font-family: var(--sans);
@@ -151,8 +115,6 @@
       .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
       .chip { font-size: 11.5px; border-radius: 999px; padding: 3px 10px; display: inline-flex; align-items: center; gap: 5px; }
       .chip.on { background: #b42318; border-color: #b42318; color: #fff; }
-      .chip .x { opacity: 0.6; }
-      .chip .x:hover { opacity: 1; }
 
       .chartbar { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
       .rangebox { display: flex; align-items: center; gap: 6px; }
@@ -164,16 +126,6 @@
       .field { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
       .field .k { font-family: var(--mono); font-size: 11px; color: var(--muted); }
       input[type="number"] { width: 78px; }
-      input[type="color"] { width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 7px; background: none; cursor: pointer; }
-      .filebtn {
-        font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 7px;
-        padding: 6px 10px; cursor: pointer; transition: border-color 0.12s, color 0.12s;
-      }
-      .filebtn:hover { border-color: var(--faint); color: var(--ink); }
-      .filebtn input { display: none; }
-      .msg { font-family: var(--mono); font-size: 11px; margin-top: 8px; min-height: 15px; }
-      .msg.err { color: #b42318; }
-      .msg.ok { color: #0a7d4d; }
 
       .canvas { min-width: 0; }
       .chartwrap {
@@ -222,22 +174,6 @@
         <section>
           <p class="label">Curves</p>
           <div id="curveList"></div>
-          <button id="addToggle" class="addlink">+ Add a curve</button>
-          <div id="addForm" class="addform" hidden>
-            <input type="text" id="impLabel" placeholder="Curve name" />
-            <input type="text" id="impSource" placeholder="Source / citation" />
-            <div class="top">
-              <input type="color" id="impColor" value="#2d8a6d" title="Colour" />
-              <label class="filebtn">Upload<input type="file" id="impFile" accept=".csv,.txt,.json" /></label>
-              <span class="caption" id="impFileName" style="margin: 0;"></span>
-            </div>
-            <textarea id="impData" rows="4" placeholder="1500, 2.1&#10;1700, 5.4&#10;2940, 31"></textarea>
-            <div class="btnrow">
-              <button id="impAdd">Add</button>
-              <button id="addCancel">Cancel</button>
-            </div>
-            <div class="msg" id="impMsg"></div>
-          </div>
           <p class="caption">data · <a href="/data/laser-tissue.json" target="_blank">data/laser-tissue.json</a></p>
         </section>
 
@@ -248,18 +184,6 @@
             <button id="laserNone">None</button>
           </div>
           <div class="chips" id="laserChips"></div>
-          <button id="laserAddToggle" class="addlink">+ Add a laser</button>
-          <div id="laserAddForm" class="addform" hidden>
-            <input type="text" id="lzLabel" placeholder="Laser name" />
-            <div class="field" style="margin: 0;">
-              <input type="number" id="lzNm" placeholder="wavelength" /><span class="k">nm</span>
-            </div>
-            <div class="btnrow">
-              <button id="lzAdd">Add</button>
-              <button id="lzCancel">Cancel</button>
-            </div>
-            <div class="msg" id="lzMsg"></div>
-          </div>
           <p class="caption">Click a laser to read its μa</p>
         </section>
 

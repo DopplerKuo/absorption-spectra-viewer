@@ -77,9 +77,8 @@ chart.upsertCurve({
 chart.removeCurve('collagen');       // or take it back out
 ```
 
-For end users, the app ships an **Add data** panel that parses pasted/uploaded `nm, μa` text (or
-`[[nm,μa],…]`) into a curve. The parser is exported and validates the log-log invariants (≥2 points,
-positive values, ascending, deduped):
+A text parser is also exported for building data from `nm, μa` strings (or `[[nm,μa],…]`); it
+validates the log-log invariants (≥2 points, positive values, ascending, deduped):
 
 ```ts
 import { parsePoints } from 'photolyze';

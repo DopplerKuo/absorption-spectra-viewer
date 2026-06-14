@@ -1,18 +1,13 @@
 // photolyze web app: drives the AbsorptionSpectrum engine.
-// Model: the sidebar is the DATA (two input layers — Curves and Lasers, each toggleable/addable/removable);
-// the chart area is the VIEW (live wavelength range + zoom) and analysis (hover readout, compare).
-import { AbsorptionSpectrum, fmtMua, parsePoints } from '../src/index';
+// Sidebar = the data layers (Curves, Lasers); chart area = the view (live x/y range + zoom) and
+// analysis (hover readout, two-wavelength compare).
+import { AbsorptionSpectrum, fmtMua } from '../src/index';
 import type { Dataset } from '../src/index';
 import datasetJson from '../data/laser-tissue.json';
 
 const dataset = datasetJson as unknown as Dataset;
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-const slug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'item';
 const curveById = (id: string) => chart.getDataset().curves.find((c) => c.id === id);
-
-const userCurves = new Set<string>();
-const userLasers = new Set<string>();
-let pendingFillId: string | null = null;
 
 // ---- view: editable x (nm) and y (μa) range inputs that double as the live range readout ----
 const readout = $('readout');
@@ -113,134 +108,32 @@ for (const inp of [rangeYFrom, rangeYTo]) {
 }
 $('rangeFull').addEventListener('click', () => chart.resetZoom());
 
-// ================= DATA LAYER 1: Curves =================
+// ---- Curves (toggle which are shown) ----
 const curveList = $('curveList');
-function buildCurveList() {
-  curveList.innerHTML = '';
+for (const c of chart.getDataset().curves) {
   const visible = new Set(chart.getState().visibleIds);
-  for (const c of chart.getDataset().curves) {
-    const row = document.createElement('label');
-    row.className = 'row';
-    const dash = c.modelFormula
-      ? `background:repeating-linear-gradient(90deg,${c.color} 0 5px,transparent 5px 8px);`
-      : `background:${c.color};`;
-    row.innerHTML =
-      `<input type="checkbox" ${visible.has(c.id) ? 'checked' : ''} />` +
-      `<span class="swatch" style="${dash}"></span><span>${c.label}</span>`;
-    row.querySelector('input')!.addEventListener('change', (e) => chart.toggleCurve(c.id, (e.target as HTMLInputElement).checked));
-    if (userCurves.has(c.id)) row.appendChild(removeBtn(() => removeCurve(c.id)));
-    curveList.appendChild(row);
-  }
-  // gap rows: components with no data yet — fillable in place
-  for (const u of chart.getDataset().unavailableCurves ?? []) {
-    const row = document.createElement('div');
-    row.className = 'row gap';
-    row.innerHTML = `<span style="width:14px;flex:none"></span><span class="swatch"></span><span>${u.label}</span>`;
-    const add = document.createElement('button');
-    add.className = 'addhere';
-    add.textContent = '+ data';
-    add.addEventListener('click', () => openCurveForm(u.id, u.label));
-    row.appendChild(add);
-    curveList.appendChild(row);
-  }
+  const row = document.createElement('label');
+  row.className = 'row';
+  const dash = c.modelFormula
+    ? `background:repeating-linear-gradient(90deg,${c.color} 0 5px,transparent 5px 8px);`
+    : `background:${c.color};`;
+  row.innerHTML =
+    `<input type="checkbox" ${visible.has(c.id) ? 'checked' : ''} />` +
+    `<span class="swatch" style="${dash}"></span><span>${c.label}</span>`;
+  row.querySelector('input')!.addEventListener('change', (e) => chart.toggleCurve(c.id, (e.target as HTMLInputElement).checked));
+  curveList.appendChild(row);
 }
-function removeBtn(onClick: () => void) {
-  const x = document.createElement('button');
-  x.className = 'rowx';
-  x.textContent = '×';
-  x.title = 'Remove';
-  x.addEventListener('click', (e) => {
-    e.preventDefault();
-    onClick();
-  });
-  return x;
-}
-function removeCurve(id: string) {
-  chart.removeCurve(id);
-  userCurves.delete(id);
-  buildCurveList();
-  buildCmpOptions();
-}
-buildCurveList();
 
-// curve add form (inside the Curves section)
-const addForm = $('addForm');
-$('addToggle').addEventListener('click', () => {
-  if (addForm.hasAttribute('hidden')) openCurveForm();
-  else addForm.setAttribute('hidden', '');
-});
-function openCurveForm(id?: string, label?: string) {
-  addForm.removeAttribute('hidden');
-  pendingFillId = id ?? null;
-  $<HTMLInputElement>('impLabel').value = label ?? '';
-  const ta = $<HTMLTextAreaElement>('impData');
-  ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  (label ? ta : $<HTMLInputElement>('impLabel')).focus();
-}
-$('addCancel').addEventListener('click', () => {
-  addForm.setAttribute('hidden', '');
-  $('impMsg').textContent = '';
-});
-$('impFile').addEventListener('change', async (e) => {
-  const f = (e.target as HTMLInputElement).files?.[0];
-  if (!f) return;
-  $<HTMLTextAreaElement>('impData').value = await f.text();
-  $('impFileName').textContent = f.name;
-});
-$('impAdd').addEventListener('click', () => {
-  const msg = $('impMsg');
-  msg.className = 'msg';
-  msg.textContent = '';
-  const label = $<HTMLInputElement>('impLabel').value.trim();
-  const source = $<HTMLInputElement>('impSource').value.trim();
-  try {
-    if (!label) throw new Error('Enter a curve name.');
-    if (!source) throw new Error('Enter a source / citation.');
-    const points = parsePoints($<HTMLTextAreaElement>('impData').value);
-    const id = pendingFillId ?? slug(label);
-    chart.upsertCurve({ id, label, color: $<HTMLInputElement>('impColor').value, points, source: { ref: source } });
-    userCurves.add(id);
-    pendingFillId = null;
-    buildCurveList();
-    buildCmpOptions();
-    addForm.setAttribute('hidden', '');
-    ['impLabel', 'impSource', 'impData'].forEach((i) => (($(i) as HTMLInputElement | HTMLTextAreaElement).value = ''));
-    $('impFileName').textContent = '';
-  } catch (err) {
-    msg.className = 'msg err';
-    msg.textContent = (err as Error).message;
-  }
-});
-
-// ================= DATA LAYER 2: Lasers =================
+// ---- Lasers (All/None + multi-select chips) ----
 const laserChips = $('laserChips');
-function buildLaserChips() {
-  const active = new Set(chart.getState().activeLaserIds);
-  laserChips.innerHTML = '';
-  for (const l of chart.getDataset().lasers) {
-    const chip = document.createElement('button');
-    chip.className = 'chip' + (active.has(l.id) ? ' on' : '');
-    chip.dataset.id = l.id;
-    chip.title = `${l.label} · ${l.wavelengthNm} nm`;
-    chip.append(l.label);
-    if (userLasers.has(l.id)) {
-      const x = document.createElement('span');
-      x.className = 'x';
-      x.textContent = '×';
-      x.addEventListener('click', (e) => {
-        e.stopPropagation();
-        chart.removeLaser(l.id);
-        userLasers.delete(l.id);
-        buildLaserChips();
-      });
-      chip.appendChild(x);
-    }
-    chip.addEventListener('click', () => chart.toggleLaser(l.id));
-    laserChips.appendChild(chip);
-  }
-}
-buildLaserChips();
-
+const active0 = new Set(chart.getState().activeLaserIds);
+laserChips.innerHTML = chart
+  .getDataset()
+  .lasers.map((l) => `<button class="chip${active0.has(l.id) ? ' on' : ''}" data-id="${l.id}" title="${l.label} · ${l.wavelengthNm} nm">${l.label}</button>`)
+  .join('');
+laserChips.querySelectorAll<HTMLButtonElement>('.chip').forEach((chip) =>
+  chip.addEventListener('click', () => chart.toggleLaser(chip.dataset.id!)),
+);
 const laserAll = $<HTMLButtonElement>('laserAll');
 const laserNone = $<HTMLButtonElement>('laserNone');
 laserAll.addEventListener('click', () => {
@@ -256,48 +149,10 @@ laserNone.addEventListener('click', () => {
   laserAll.classList.remove('active');
 });
 
-const laserAddForm = $('laserAddForm');
-$('laserAddToggle').addEventListener('click', () => {
-  laserAddForm.toggleAttribute('hidden');
-  if (!laserAddForm.hasAttribute('hidden')) $<HTMLInputElement>('lzLabel').focus();
-});
-$('lzCancel').addEventListener('click', () => {
-  laserAddForm.setAttribute('hidden', '');
-  $('lzMsg').textContent = '';
-});
-$('lzAdd').addEventListener('click', () => {
-  const msg = $('lzMsg');
-  msg.className = 'msg';
-  const label = $<HTMLInputElement>('lzLabel').value.trim();
-  const nm = Number($<HTMLInputElement>('lzNm').value);
-  if (!label) {
-    msg.className = 'msg err';
-    msg.textContent = 'Enter a name.';
-    return;
-  }
-  if (!(nm > 0)) {
-    msg.className = 'msg err';
-    msg.textContent = 'Enter a positive wavelength.';
-    return;
-  }
-  const id = `${slug(label)}-${Math.round(nm)}`;
-  chart.upsertLaser({ id, label, wavelengthNm: nm });
-  userLasers.add(id);
-  buildLaserChips();
-  laserAddForm.setAttribute('hidden', '');
-  $<HTMLInputElement>('lzLabel').value = '';
-  $<HTMLInputElement>('lzNm').value = '';
-});
-
-// ================= Analysis: Compare =================
+// ---- Compare two wavelengths ----
 const cmpCurve = $<HTMLSelectElement>('cmpCurve');
-function buildCmpOptions() {
-  const prev = cmpCurve.value;
-  const curves = chart.getDataset().curves;
-  cmpCurve.innerHTML = curves.map((c) => `<option value="${c.id}">${c.label}</option>`).join('');
-  cmpCurve.value = curves.some((c) => c.id === prev) ? prev : curves.some((c) => c.id === 'water') ? 'water' : curves[0]?.id ?? '';
-}
-buildCmpOptions();
+cmpCurve.innerHTML = chart.getDataset().curves.map((c) => `<option value="${c.id}">${c.label}</option>`).join('');
+cmpCurve.value = chart.getDataset().curves.some((c) => c.id === 'water') ? 'water' : chart.getDataset().curves[0]?.id ?? '';
 $('cmpRun').addEventListener('click', () => {
   const a = Number($<HTMLInputElement>('cmpA').value);
   const b = Number($<HTMLInputElement>('cmpB').value);
